@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Lesson1.GameLogic;
 using Lesson1.GameLogic.Structures;
+using Lesson1.Helpers;
 
 namespace Lesson1
 {
@@ -19,41 +20,122 @@ namespace Lesson1
         /// 
         /// </summary>
         /// <param name="args"></param>
-        static void Main(string[] args) => StartEngine();
+        public static void Main(string[] args) => StartEngine();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static Dictionary<int, string> IndexToGameMode { get; } = new Dictionary<int, string>
+        {
+            { 1, "Mine Sweeper" }
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static Dictionary<int, Difficulty> IndexToDifficulty { get; } = new Dictionary<int, Difficulty>
+        {
+            { 1, Difficulty.Easy },
+            { 2, Difficulty.Normal },
+            { 3, Difficulty.Hard },
+            { 4, Difficulty.Expert }
+        };
 
         /// <summary>
         /// Starts game "engine."
         /// </summary>
-        static void StartEngine()
+        private static void StartEngine()
         {
+            // Set initial text color
+            Console.ForegroundColor = ConsoleColor.White;
+
             while (true)
             {
-                // Write to console.
-                Console.WriteLine("Select a game: ");
-                Console.WriteLine("1. MineSweeper \n");
-                Console.WriteLine("Enter a number to select game: \n");
-
-                // Get gamemode from input
-                int mode;
-                while (true)
+                try
                 {
-                    mode = ParseInputToInt(Console.ReadLine());
-                    if (mode == 1)
-                        break;
+                    Update();
                 }
-
-                // Start game depending on what the user had input.
-                switch (mode)
+                catch(Exception e)
                 {
-                    case 1:
-                        CurrentGame = new MineSweeper(12, 12, Difficulty.Normal);
-                        break;
-                    default:
-                        throw new Exception("Invalid game mode has been declared.");
+                    TextManager.WriteLine(e.Message, ConsoleColor.Red);
+                    TextManager.WriteLine(e.StackTrace, ConsoleColor.Red);
+                    break;
                 }
-
-                CurrentGame.StartGame();
             }
+
+            // Write error message
+            TextManager.WriteLine("The program has crashed!!!!!", ConsoleColor.Yellow);
+            TextManager.ReadLine();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void Update()
+        {
+            // Gameplay variables
+            int gameIndex;
+            string gameName;
+            int difficultyIndex;
+            Difficulty difficulty;
+
+            // Write instructions to Console.
+            TextManager.WriteLine("Select a game: ");
+            foreach (var index in IndexToGameMode) TextManager.WriteLine($"{index.Key}. {index.Value}");
+            TextManager.WriteLine();
+            TextManager.WriteLine("Enter a number to select game: \n", ConsoleColor.Green);
+
+            // Get gamemode from user input
+            while (true)
+            {
+                gameIndex = ParseInputToInt(TextManager.ReadLine());
+                if (IndexToGameMode.ContainsKey(gameIndex))
+                {
+                    IndexToGameMode.TryGetValue(gameIndex, out gameName);
+                    break;
+                }
+                TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
+            }
+
+            // Write instrutions to Console.
+            TextManager.Clear();
+            TextManager.WriteLine($"Game Selected: {gameName}");
+            foreach (var index in IndexToDifficulty) TextManager.WriteLine($"{index.Key}. {index.Value}");
+            TextManager.WriteLine();
+            TextManager.WriteLine("Enter a number to select difficulty: \n", ConsoleColor.Green);
+
+            // Get game difficulty from user input
+            while (true)
+            {
+                difficultyIndex = ParseInputToInt(TextManager.ReadLine());
+                if (IndexToDifficulty.ContainsKey(difficultyIndex) == true)
+                {
+                    IndexToDifficulty.TryGetValue(difficultyIndex, out difficulty);
+                    break;
+                }
+                TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
+            }
+
+            // Write instructions to Console.
+            TextManager.Clear();
+            TextManager.WriteLine($"Game Selected: {gameName}");
+            TextManager.WriteLine($"Difficulty Selected: {difficulty}");
+            TextManager.WriteLine();
+            TextManager.WriteLineBreak();
+
+
+            // Start game depending on what the user had input.
+            switch (gameIndex)
+            {
+                case 1:
+                    CurrentGame = new MineSweeper(difficulty);
+                    break;
+                default:
+                    throw new Exception("Invalid game mode has been declared.");
+            }
+
+            // Start Game
+            CurrentGame.StartGame();
         }
 
         /// <summary>
@@ -62,7 +144,7 @@ namespace Lesson1
         /// </summary>
         /// <param name="input"></param>
         /// <returns></returns>
-        static private int ParseInputToInt(string input)
+        private static int ParseInputToInt(string input)
         {
             int number;
             Int32.TryParse(input, out number);

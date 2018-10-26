@@ -46,7 +46,9 @@
     <Compile Include="GameLogic\Structures\Coordinate.cs" />
     <Compile Include="GameLogic\MineSweeper.cs" />
     <Compile Include="GameLogic\Structures\Difficulty.cs" />
+    <Compile Include="GameLogic\Structures\MineArea.cs" />
     <Compile Include="Helpers\RandomHelper.cs" />
+    <Compile Include="Helpers\TextManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Lesson1.GameLogic.Structures;
+using Lesson1.Helpers;
 
 namespace Lesson1.GameLogic
 {
@@ -13,24 +14,9 @@ namespace Lesson1.GameLogic
     public class MineSweeper : Game
     {
         /// <summary>
-        ///     MAX total number of rows the user can set
+        /// Radius of which that the mines won't be generated from the initial coordinate
         /// </summary>
-        private static int MAX_TOTAL_ROWS = 14;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static int MIN_TOTAL_ROWS = 9;
-
-        /// <summary>
-        ///     MAX total number of columns the user can set
-        /// </summary>
-        private static int MAX_TOTAL_COLUMNS = 26;
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private static int MIN_TOTAL_COLUMNS = 9;
+        private static int SAFE_RADIUS = 2;
 
         /// <summary>
         /// 
@@ -50,7 +36,9 @@ namespace Lesson1.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        private bool[,] MineField { get; set; }
+        private MineArea[,] MineFieldArea { get; set; }
+
+        private int[,] MineFieldLabels { get; set; }
 
         /// <summary>
         /// 
@@ -76,25 +64,71 @@ namespace Lesson1.GameLogic
             { 'l', 11 },
             { 'm', 12 },
             { 'n', 13 },
-            { 'o', 14 }
+            { 'o', 14 },
+            { 'p', 15 },
+            { 'q', 16 },
+            { 'r', 17 },
+            { 's', 18 },
+            { 't', 19 }
         };
 
-        private Dictionary<Difficulty, float> DifficultyToMineRatio { get; } = new Dictionary<Difficulty, float>
+        /// <summary>
+        /// 
+        /// </summary>
+        private Dictionary<Difficulty, float> DifficultyToMineDensity { get; } = new Dictionary<Difficulty, float>
         {
-            { Difficulty.Easy, 0.10f },
-            { Difficulty.Normal, 0.20f },
-            { Difficulty.Hard, 0.30f },
-            { Difficulty.Expert, 0.40f }
+            { Difficulty.Easy, 0.157f },
+            { Difficulty.Normal, 0.17f },
+            { Difficulty.Hard, 0.20f },
+            { Difficulty.Expert, 0.24f }
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Dictionary<Difficulty, int> DifficultyToRows { get; } = new Dictionary<Difficulty, int>
+        {
+            { Difficulty.Easy, 8 },
+            { Difficulty.Normal, 12 },
+            { Difficulty.Hard, 16 },
+            { Difficulty.Expert, 20 }
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Dictionary<Difficulty, int> DifficultyToColumns { get; } = new Dictionary<Difficulty, int>
+        {
+            { Difficulty.Easy, 8 },
+            { Difficulty.Normal, 16 },
+            { Difficulty.Hard, 32 },
+            { Difficulty.Expert, 50 }
+        };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private Dictionary<int, ConsoleColor> MineLabelToColor { get; } = new Dictionary<int, ConsoleColor>
+        {
+            { 0, ConsoleColor.Black },
+            { 1, ConsoleColor.Blue },
+            { 2, ConsoleColor.Green },
+            { 3, ConsoleColor.Red },
+            { 4, ConsoleColor.Yellow },
+            { 5, ConsoleColor.White },
+            { 6, ConsoleColor.Gray },
+            { 7, ConsoleColor.Magenta },
+            { 8, ConsoleColor.White },
         };
 
         /// <summary>
         /// Initialize Mine Sweeper Game
         /// </summary>
-        public MineSweeper(int rows, int columns, Difficulty difficulty)
+        public MineSweeper(Difficulty difficulty)
         {
-            TotalRows = rows;
-            TotalColumns = columns;
-            TotalMines = (int)(TotalRows * TotalColumns * DifficultyToMineRatio[difficulty]);
+            TotalRows = DifficultyToRows[difficulty];
+            TotalColumns = DifficultyToColumns[difficulty];
+            TotalMines = (int)(TotalRows * TotalColumns * DifficultyToMineDensity[difficulty]);
         }
 
         /// <summary>
@@ -116,28 +150,57 @@ namespace Lesson1.GameLogic
         /// <summary>
         /// 
         /// </summary>
+        internal override void WriteInstructions()
+        {
+            TextManager.WriteLine("Objective: Your goal is to reveal every area in the mine field without triggering a mine");
+            TextManager.WriteLine("How to play: Enter a coordinate to review an area.");
+            TextManager.WriteLine("Examples: B2, F12", ConsoleColor.Gray);
+            TextManager.WriteLine();
+            TextManager.WriteLineBreak();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         internal override bool Update()
         {
             // Write instructions
-            Console.WriteLine("Enter Coordinates: ");
-            Console.WriteLine(" - Example: 'A6', 'F14' \n");
+            TextManager.WriteLine("Enter a Coordinate: \n", ConsoleColor.Green);
 
             // Get Coordinate
-            var coordinate = ParseInput(Console.ReadLine());
-            Console.Clear();
+            var coordinate = ParseInput(TextManager.ReadLine());
+            TextManager.Clear();
 
             // Validate Coordinate
             if (coordinate == null)
-                Console.Out.WriteLine("Invalid input.");
+            {
+                TextManager.WriteLine("Invalid input.", ConsoleColor.Red);
+                return true;
+            }
             else
-                Console.Out.WriteLine("Coordinate: " + coordinate.Column + ", " + coordinate.Row);
+                TextManager.WriteLine("Coordinate: " + coordinate.Column + ", " + coordinate.Row);
 
             // Generate MineField if it hasn't been generated yet
             if (!MineFieldInitialized)
-                GenerateMineField(coordinate);
+                GenerateMineFieldArea(coordinate);
 
-            return true;
+            // Select MineField area and draw the mine field
+            var failed = CheckMineArea(coordinate);
+            DrawMineField(failed);
+            TextManager.WriteLine();
+
+            return !failed;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="select"></param>
+        /// <returns></returns>
+        internal bool CheckMineArea(Coordinate select)
+        {
+            return false;
         }
 
         /// <summary>
@@ -145,48 +208,165 @@ namespace Lesson1.GameLogic
         /// Mainly that ooordinate is the first coordinate that the user had input.
         /// </summary>
         /// <param name="ignore"></param>
-        internal void GenerateMineField(Coordinate ignore)
+        internal void GenerateMineFieldArea(Coordinate ignore)
         {
             // Generate available spaces for minefield
+            // First dimension = row, Second dimension = column
             var rng = new Random();
             var available = new List<Queue<int>>();
-            for (var i = 0; i < TotalColumns; i++)
+            for (var row = 0; row < TotalRows; row++)
             {
                 available.Add(new Queue<int>());
 
-                // Add rows to the Shuffle list
+                // Add columns to the Shuffle list
                 var shuffle = new List<int>();
-                for (var j = 0; j < TotalRows - 1; j++)
-                    shuffle.Add(j);
+                for (var column = 0; column < TotalColumns - 1; column++)
+                {
+                    var val = column;
+                    shuffle.Add(val);
+                }
 
                 // Shuffle the Shuffle list
                 //  - Uses Fisher-Yates shuffle algorithm
-                for (var j = 0; j < TotalRows - 1; j++)
+                for (var column = shuffle.Count() - 1; column > 0; column--)
                 {
-                    int random = rng.Next(j + 1);
-
+                    int random = rng.Next(shuffle.Count());
                     var val = shuffle[random];
-                    shuffle[random] = j;
-                    shuffle[j] = random;
+                    shuffle[random] = column;
+                    shuffle[column] = val;
                 }
 
                 // Add values from shuffle list to queue
-                foreach (var ob in shuffle)
-                    available[i].Enqueue(ob);
+                foreach (var column in shuffle)
+                {
+                    // Add column to shuffle list only if its outside the radius from the initial coordinate
+                    if (Math.Abs(column - ignore.Column) > SAFE_RADIUS || Math.Abs(row - ignore.Row) > SAFE_RADIUS)
+                        available[row].Enqueue(column);
+                }
             }
 
-            // Start generating the Mine Field
-            MineField = new bool[TotalColumns, TotalRows];
+            // Initialize Minefield array
+            MineFieldArea = new MineArea[TotalRows, TotalColumns];
             MineFieldInitialized = true;
 
+            // Start generating the Mine Field
             for (var i = 0; i < TotalMines; i++)
             {
-                var random = rng.Next(TotalColumns);
-                if (available[random].Count > 0)
+                // Keep trying to generate mines until one has been generated
+                while (true)
                 {
-                    var val = available[random].Dequeue();
-                    if (random != ignore.Column && val != ignore.Row)
-                        MineField[random, val] = true;
+                    var random = rng.Next(TotalRows);
+                    if (available[random].Count > 0)
+                    {
+                        var val = available[random].Dequeue();
+                        MineFieldArea[random, val] = MineArea.Mine;
+                        break;
+                    }
+                }
+            }
+
+            // Generate MineField labels
+            GenerateMineFieldLabels();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal void GenerateMineFieldLabels()
+        {
+            MineFieldLabels = new int[TotalRows, TotalColumns];
+            for (var row = 0; row < TotalRows - 1; row++)
+            {
+                for (var column = 0; column < TotalColumns - 1; column++)
+                {
+                    MineFieldLabels[row,column] = CountNearbyMines(row, column);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        internal int CountNearbyMines(int row, int column)
+        {
+            var count = 0;
+            for (var i = -1; i <= 1; i++)
+            {
+                for (var j = -1; j <= 1; j++)
+                {
+                    if (!(i == 0 && j == 0))
+                    {
+                        var y = i + row;
+                        var x = j + column;
+
+                        if (y >= 0 && x >= 0 && y < TotalRows && x < TotalColumns)
+                        {
+                            if (MineFieldArea[y, x] == MineArea.Mine)
+                            {
+                                count++;
+                            }
+                        }
+                    }
+                }
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal void DrawMineField(bool showMines = false)
+        {
+            // Draw labels on first row
+            TextManager.WriteCharacter('_', ConsoleColor.Black);
+            TextManager.WriteCharacter('_', ConsoleColor.Black);
+            for (var i = 0; i < TotalColumns; i++)
+            {
+                var val = (i + 1) % 10;
+                if (val == 0)
+                    TextManager.WriteCharacter('0', ConsoleColor.Magenta);
+                else
+                    TextManager.WriteCharacter(val.ToString().First(), ConsoleColor.Cyan);
+            }
+
+            // Draw mine field
+            for (var row = 0; row < TotalRows - 1; row++)
+            {
+                for (var column = 0; column < TotalColumns - 1; column++)
+                {
+                    // Draw appropriate vertical label
+                    if (column == 0)
+                    {
+                        char letter = Char.ToUpper(CharToRowIndex.Keys.ElementAt(row));
+                        TextManager.WriteLine();
+                        TextManager.WriteCharacter(letter, ConsoleColor.Cyan);
+                        TextManager.WriteCharacter('_', ConsoleColor.Black);
+                    }
+
+                    // Draw character on screen. It will depend on wether the mine is active or not.
+                    switch (MineFieldArea[row, column])
+                    {
+                        case MineArea.Mine:
+                            if (showMines)
+                                TextManager.WriteCharacter('X', ConsoleColor.Red);
+                            else
+                                TextManager.WriteCharacter('O', ConsoleColor.DarkGray);
+                            break;
+                        case MineArea.Revealed:
+                            var label = MineFieldLabels[row, column];
+                            TextManager.WriteCharacter(label.ToString().First(), MineLabelToColor[label]);
+                            break;
+                        case MineArea.Safe:
+                            TextManager.WriteCharacter('_', ConsoleColor.Black);
+                            break;
+                        default:
+                            TextManager.WriteCharacter('O', ConsoleColor.DarkGray);
+                            break;
+
+                    }
                 }
             }
         }
@@ -214,6 +394,9 @@ namespace Lesson1.GameLogic
             var row = CharToRowIndex[input.First()];
             var column = -1;
             Int32.TryParse(input.Substring(1), out column);
+            
+            // Shift user input to match column index
+            column--;
 
             // Check if row and column are within range.
             if (row < 0 || row > TotalRows - 1)

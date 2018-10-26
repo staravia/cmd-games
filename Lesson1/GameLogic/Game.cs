@@ -16,6 +16,7 @@ namespace Lesson1.GameLogic
         internal virtual void StartGame()
         {
             ContinueGame = true;
+            WriteInstructions();
             while (Update() || ContinueGame) ;
         }
 
@@ -28,5 +29,10 @@ namespace Lesson1.GameLogic
         /// 
         /// </summary>
         internal virtual void EndGame() => ContinueGame = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal abstract void WriteInstructions();
     }
 }
