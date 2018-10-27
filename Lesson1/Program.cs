@@ -53,6 +53,8 @@ namespace Lesson1
             // Set initial text color
             Console.ForegroundColor = ConsoleColor.White;
 
+            // Start main game loop.
+            // Loop will end on exception.
             while (true)
             {
                 try
