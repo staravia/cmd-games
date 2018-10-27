@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Lesson1.Helpers
 {
-    public static class RandomNumberGenerator
+    public static class RandomHelper
     {
+
         /// <summary>
         /// 
         /// </summary>
@@ -19,13 +20,13 @@ namespace Lesson1.Helpers
         /// <param name="min"></param>
         /// <param name="max"></param>
         /// <returns></returns>
-        public static int GetRandomInt(int min, int max)
+        public static int RandomInt(int min, int max)
         {
             // Throw exception if max is greater than min
-            if (max > min)
+            if (min > max)
                 throw new Exception("Max value has to be greater than Min value.");
 
-            return RNG.Next(max - min) + min;
+            return RNG.Next(max - min + 1) + min;
         }
     }
 }

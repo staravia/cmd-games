@@ -296,7 +296,6 @@ namespace Lesson1.GameLogic
         {
             // Generate available spaces for minefield
             // First dimension = row, Second dimension = column
-            var rng = new Random();
             var available = new List<Queue<int>>();
             for (var row = 0; row < TotalRows; row++)
             {
@@ -314,7 +313,7 @@ namespace Lesson1.GameLogic
                 //  - Uses Fisher-Yates shuffle algorithm
                 for (var column = shuffle.Count() - 1; column > 0; column--)
                 {
-                    int random = rng.Next(shuffle.Count());
+                    var random = RandomHelper.RandomInt(0, shuffle.Count() - 1);
                     var val = shuffle[random];
                     shuffle[random] = column;
                     shuffle[column] = val;
@@ -340,7 +339,7 @@ namespace Lesson1.GameLogic
                 // Keep trying to generate mines until one has been generated
                 while (true)
                 {
-                    var random = rng.Next(TotalRows);
+                    var random = RandomHelper.RandomInt(0, TotalRows - 1);
                     if (available[random].Count > 0)
                     {
                         var val = available[random].Dequeue();
