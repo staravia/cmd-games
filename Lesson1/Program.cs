@@ -9,21 +9,24 @@ using Lesson1.Helpers;
 
 namespace Lesson1
 {
+    /// <summary>
+    /// This is the main Class.
+    /// </summary>
     class Program
     {
         /// <summary>
-        /// 
+        /// The current game that the user selected.
         /// </summary>
         private static Game CurrentGame { get; set; }
 
         /// <summary>
-        /// 
+        /// Main method. (First Method that gets called when the program starts.)
         /// </summary>
         /// <param name="args"></param>
         public static void Main(string[] args) => StartEngine();
 
         /// <summary>
-        /// 
+        /// Used to display appropriate text on screen depending on what game the user selected.
         /// </summary>
         private static Dictionary<int, string> IndexToGameMode { get; } = new Dictionary<int, string>
         {
@@ -31,7 +34,7 @@ namespace Lesson1
         };
 
         /// <summary>
-        /// 
+        /// Referenced to generate and display difficulty that the user selected.
         /// </summary>
         private static Dictionary<int, Difficulty> IndexToDifficulty { get; } = new Dictionary<int, Difficulty>
         {
@@ -43,7 +46,7 @@ namespace Lesson1
         };
 
         /// <summary>
-        /// Starts game "engine."
+        /// Starts the Game "Engine."
         /// </summary>
         private static void StartEngine()
         {
@@ -70,7 +73,7 @@ namespace Lesson1
         }
 
         /// <summary>
-        /// 
+        /// This method will keep looping until a bug is found, or if the player closes the program.
         /// </summary>
         private static void Update()
         {
@@ -80,13 +83,13 @@ namespace Lesson1
             int difficultyIndex;
             Difficulty difficulty;
 
-            // Write instructions to Console.
+            // Write instructions + information to Console.
             TextManager.WriteLine("Select a game: ");
             foreach (var index in IndexToGameMode) TextManager.WriteLine($"{index.Key}. {index.Value}");
             TextManager.WriteLine();
             TextManager.WriteLine("Enter a number to select game: \n", ConsoleColor.Green);
 
-            // Get gamemode from user input
+            // Validate and get gamemode from user input
             while (true)
             {
                 gameIndex = ParseInputToInt(TextManager.ReadLine());
@@ -95,10 +98,11 @@ namespace Lesson1
                     IndexToGameMode.TryGetValue(gameIndex, out gameName);
                     break;
                 }
+
                 TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
             }
 
-            // Write instrutions to Console.
+            // Write instrutions + information to Console.
             TextManager.Clear();
             TextManager.WriteLine($"Game Selected: {gameName}");
             foreach (var index in IndexToDifficulty) TextManager.WriteLine($"{index.Key}. {index.Value}");
@@ -117,12 +121,12 @@ namespace Lesson1
                 TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
             }
 
-            // Write instructions to Console.
+            // Write instructions + information to Console.
             TextManager.Clear();
             TextManager.WriteLine($"Game Selected: {gameName}");
             TextManager.WriteLine($"Difficulty Selected: {difficulty}");
-            TextManager.WriteLine();
             TextManager.WriteLineBreak();
+            TextManager.WriteLine();
 
 
             // Start game depending on what the user had input.
@@ -135,7 +139,7 @@ namespace Lesson1
                     throw new Exception("Invalid game mode has been declared.");
             }
 
-            // Start Game
+            // Start the game once the user has selected a game and difficulty.
             CurrentGame.StartGame();
         }
 

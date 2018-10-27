@@ -7,12 +7,18 @@ using System.Threading.Tasks;
 
 namespace Lesson1.GameLogic
 {
+    /// <summary>
+    /// This class is used to make games via inheritance. 
+    /// </summary>
     public abstract class Game
     {
+        /// <summary>
+        /// Determines if the game should kepe looping.
+        /// </summary>
         private bool ContinueGame { get; set; }
 
         /// <summary>
-        /// 
+        /// Starts game. Should be called from an inherited class.
         /// </summary>
         internal void StartGame()
         {
@@ -26,22 +32,22 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Main game loop.
         /// </summary>
         internal abstract bool Update();
 
         /// <summary>
-        /// 
+        /// Ends game.
         /// </summary>
         internal void EndGame() => ContinueGame = false;
 
         /// <summary>
-        /// 
+        /// Write instructions whenever the player starts this game.
         /// </summary>
         internal abstract void WriteInstructions();
 
         /// <summary>
-        /// 
+        /// Will display a message once the game is over.
         /// </summary>
         /// <param name="failed"></param>
         private void DisplayOver(bool failed)

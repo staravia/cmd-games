@@ -9,7 +9,7 @@ using Lesson1.Helpers;
 namespace Lesson1.GameLogic
 {
     /// <summary>
-    /// Mine Sweeper game for Assignment ___
+    /// Mine Sweeper Console Game
     /// </summary>
     public class MineSweeper : Game
     {
@@ -19,42 +19,42 @@ namespace Lesson1.GameLogic
         private static int SAFE_RADIUS = 2;
 
         /// <summary>
-        /// 
+        /// Total rows in the Mine Field
         /// </summary>
         private int TotalRows { get; set; }
 
         /// <summary>
-        /// 
+        /// Total columns in the Mine Field
         /// </summary>
         private int TotalColumns { get; set; }
 
         /// <summary>
-        /// 
+        /// Total mines in the Mine Field
         /// </summary>
         private int TotalMines { get; set; }
 
         /// <summary>
-        /// 
+        /// The actual Mine Field play area
         /// </summary>
         private MineArea[,] MineFieldArea { get; set; }
 
         /// <summary>
-        /// 
+        /// Labels that will be displayed on the Mine Field
         /// </summary>
         private int[,] MineFieldLabels { get; set; }
 
         /// <summary>
-        /// 
+        /// When searching for safe areas, this array will be referenced
         /// </summary>
         private bool[,] MineAreaChecked { get; set; }
 
         /// <summary>
-        /// 
+        /// Is determined by whether the Mine Field has already been initialized
         /// </summary>
         private bool MineFieldInitialized { get; set; }
 
         /// <summary>
-        /// Used to convert user input to row.
+        /// Refrenced to convert user input to row.
         /// </summary>
         private Dictionary<char, int> CharToRowIndex { get; } = new Dictionary<char, int>
         {
@@ -81,7 +81,7 @@ namespace Lesson1.GameLogic
         };
 
         /// <summary>
-        /// 
+        /// Refrenced to generate mines with a ratio from a selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, float> DifficultyToMineDensity { get; } = new Dictionary<Difficulty, float>
         {
@@ -93,7 +93,7 @@ namespace Lesson1.GameLogic
         };
 
         /// <summary>
-        /// 
+        /// Refrenced to generate appropriate amount of rows from selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToRows { get; } = new Dictionary<Difficulty, int>
         {
@@ -105,7 +105,7 @@ namespace Lesson1.GameLogic
         };
 
         /// <summary>
-        /// 
+        /// Refrenced to generate appropriate amount of columns from selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToColumns { get; } = new Dictionary<Difficulty, int>
         {
@@ -117,7 +117,7 @@ namespace Lesson1.GameLogic
         };
 
         /// <summary>
-        /// 
+        /// Used to set the appropriate color to a label depending on how many mines are surrounding it.
         /// </summary>
         private Dictionary<int, ConsoleColor> MineLabelToColor { get; } = new Dictionary<int, ConsoleColor>
         {
@@ -143,20 +143,21 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Write instructions whenever the player starts this game.
         /// </summary>
         internal override void WriteInstructions()
         {
             TextManager.WriteLine("Objective: Your goal is to reveal every area in the mine field without triggering a mine");
             TextManager.WriteLine("How to play: Enter a coordinate to review an area.");
-            //TextManager.WriteLine($"Pick a letter from A -> {ToUpper(CharToRowIndex.Keys.ElementAt(TotalColumns)}, followed by a number between 1 -> {TotalColumns}");
+            TextManager.WriteLine($"Pick a letter from A -> {Char.ToUpper(CharToRowIndex.Keys.ElementAt(TotalRows - 1))}, followed by a number between 1 -> {TotalColumns}", ConsoleColor.Yellow);
             TextManager.WriteLine("Examples: B2, F12", ConsoleColor.Gray);
             TextManager.WriteLine();
-            TextManager.WriteLineBreak();
+            DrawMineField();
+            TextManager.WriteLine();
         }
 
         /// <summary>
-        /// 
+        /// Main Game Loop.
         /// </summary>
         /// <returns></returns>
         internal override bool Update()
@@ -172,13 +173,12 @@ namespace Lesson1.GameLogic
             if (coordinate == null)
             {
                 if (MineFieldInitialized)
-                {
                     DrawMineField(false);
-                    TextManager.WriteLine();
-                    TextManager.WriteLine();
-                }
+                else
+                    DrawMineField();
 
                 TextManager.WriteLine("Invalid input.", ConsoleColor.Red);
+                TextManager.WriteLine();
                 return true;
             }
 
@@ -190,19 +190,18 @@ namespace Lesson1.GameLogic
             var area = MineFieldArea[coordinate.Row, coordinate.Column];
             if (area == MineArea.Revealed || area == MineArea.Safe)
             {
-                TextManager.WriteLine();
-                TextManager.WriteLine();
+                DrawMineField(false);
                 TextManager.WriteLine("Coordinate is already revealed.", ConsoleColor.Red);
+                TextManager.WriteLine();
                 return true;
             }
 
             // Select MineField area and draw the mine field
             var failed = PlayMineArea(coordinate);
-            var totalLeft = CheckTotalUnknownAreasLeft();
+            var totalLeft = CountTotalUnknownAreas();
             DrawMineField(failed);
 
             // Write information
-            TextManager.WriteLine();
             TextManager.WriteLine($"Total Area Remaining: {totalLeft}");
             TextManager.WriteLine();
 
@@ -235,15 +234,15 @@ namespace Lesson1.GameLogic
             }
 
             MineFieldArea[select.Row, select.Column] = MineArea.Safe;
-            CheckForVisiblity(select.Row, select.Column);
+            CheckAreaForVisiblity(select.Row, select.Column);
 
             return false;
         }
 
         /// <summary>
-        /// 
+        /// Count total unknown areas left in the play area.
         /// </summary>
-        internal int CheckTotalUnknownAreasLeft()
+        internal int CountTotalUnknownAreas()
         {
             var total = 0;
             // If there are still unknown areas in the map, the player has not won yet.
@@ -255,11 +254,11 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Recursively check surrounding area in a minefield and reveals them when appropriate. 
         /// </summary>
         /// <param name="spot"></param>
         /// <returns></returns>
-        internal void CheckForVisiblity(int row, int column)
+        private void CheckAreaForVisiblity(int row, int column)
         {
             if (row < 0 || row >= TotalRows) return;
             if (column < 0 || column >= TotalColumns) return;
@@ -274,16 +273,16 @@ namespace Lesson1.GameLogic
             if (MineFieldArea[row, column] == MineArea.Safe)
             {
                 // up
-                CheckForVisiblity(row - 1, column);
+                CheckAreaForVisiblity(row - 1, column);
 
                 // down
-                CheckForVisiblity(row + 1, column);
+                CheckAreaForVisiblity(row + 1, column);
 
                 // left
-                CheckForVisiblity(row, column - 1);
+                CheckAreaForVisiblity(row, column - 1);
 
                 // right
-                CheckForVisiblity(row, column + 1);
+                CheckAreaForVisiblity(row, column + 1);
             }
 
         }
@@ -293,7 +292,7 @@ namespace Lesson1.GameLogic
         /// Mainly that ooordinate is the first coordinate that the user had input.
         /// </summary>
         /// <param name="ignore"></param>
-        internal void GenerateMineFieldArea(Coordinate ignore)
+        private void GenerateMineFieldArea(Coordinate ignore)
         {
             // Generate available spaces for minefield
             // First dimension = row, Second dimension = column
@@ -356,9 +355,9 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Generate labels for the Play Area.
         /// </summary>
-        internal void GenerateMineFieldLabels()
+        private void GenerateMineFieldLabels()
         {
             MineFieldLabels = new int[TotalRows, TotalColumns];
             for (var row = 0; row < TotalRows; row++)
@@ -371,12 +370,12 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Counts total amount of mines surrounding an area in the Play Area.
         /// </summary>
         /// <param name="row"></param>
         /// <param name="column"></param>
         /// <returns></returns>
-        internal int CountNearbyMines(int row, int column)
+        private int CountNearbyMines(int row, int column)
         {
             var count = 0;
             for (var i = -1; i <= 1; i++)
@@ -402,8 +401,49 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// 
+        /// Draws an empty Mine Field.
         /// </summary>
+        internal void DrawMineField()
+        {
+            // Draw labels on first row
+            TextManager.WriteCharacter('_', ConsoleColor.Black);
+            TextManager.WriteCharacter('_', ConsoleColor.Black);
+            for (var i = 0; i < TotalColumns; i++)
+            {
+                var val = (i + 1) % 10;
+                if (val == 0)
+                    TextManager.WriteCharacter('0', ConsoleColor.Magenta);
+                else
+                    TextManager.WriteCharacter(val.ToString().First(), ConsoleColor.Cyan);
+            }
+
+            // Draw mine field
+            for (var row = 0; row < TotalRows; row++)
+            {
+                for (var column = 0; column < TotalColumns; column++)
+                {
+                    // Draw appropriate vertical label
+                    if (column == 0)
+                    {
+                        char letter = Char.ToUpper(CharToRowIndex.Keys.ElementAt(row));
+                        TextManager.WriteLine();
+                        TextManager.WriteCharacter(letter, ConsoleColor.Cyan);
+                        TextManager.WriteCharacter('_', ConsoleColor.Black);
+                    }
+
+                    // Draw placeholder area
+                    TextManager.WriteCharacter('O', ConsoleColor.DarkGray);
+                }
+            }
+
+            // Move to next line so text doesn't continue from last line
+            TextManager.WriteLine();
+        }
+
+        /// <summary>
+        /// Draws the Mine Field (also known as the Play Area.)
+        /// </summary>
+        /// <param name="showMines"></param>
         internal void DrawMineField(bool showMines = false)
         {
             // Draw labels on first row
@@ -458,6 +498,8 @@ namespace Lesson1.GameLogic
                     }
                 }
             }
+            // Move to next line so text doesn't continue from last line
+            TextManager.WriteLine();
         }
 
         /// <summary>

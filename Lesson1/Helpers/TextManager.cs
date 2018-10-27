@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Lesson1.Helpers
 {
+    /// <summary>
+    /// This class will be managing text that gets displayed on the Ccnsole.
+    /// </summary>
     public static class TextManager
     {
         /// <summary>

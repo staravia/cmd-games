@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Lesson1.GameLogic.Structures
 {
+    /// <summary>
+    /// Used to select and generate appropriate difficulty for player.
+    /// </summary>
     public enum Difficulty
     {
         Beginner,
