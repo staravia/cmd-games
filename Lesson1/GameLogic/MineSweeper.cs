@@ -38,7 +38,15 @@ namespace Lesson1.GameLogic
         /// </summary>
         private MineArea[,] MineFieldArea { get; set; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private int[,] MineFieldLabels { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool[,] MineAreaChecked { get; set; }
 
         /// <summary>
         /// 
@@ -77,10 +85,11 @@ namespace Lesson1.GameLogic
         /// </summary>
         private Dictionary<Difficulty, float> DifficultyToMineDensity { get; } = new Dictionary<Difficulty, float>
         {
-            { Difficulty.Easy, 0.157f },
+            { Difficulty.Beginner, 0.08f },
+            { Difficulty.Easy, 0.15f },
             { Difficulty.Normal, 0.17f },
-            { Difficulty.Hard, 0.20f },
-            { Difficulty.Expert, 0.24f }
+            { Difficulty.Hard, 0.19f },
+            { Difficulty.Expert, 0.22f }
         };
 
         /// <summary>
@@ -88,6 +97,7 @@ namespace Lesson1.GameLogic
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToRows { get; } = new Dictionary<Difficulty, int>
         {
+            { Difficulty.Beginner, 8 },
             { Difficulty.Easy, 8 },
             { Difficulty.Normal, 12 },
             { Difficulty.Hard, 16 },
@@ -99,6 +109,7 @@ namespace Lesson1.GameLogic
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToColumns { get; } = new Dictionary<Difficulty, int>
         {
+            { Difficulty.Beginner, 8 },
             { Difficulty.Easy, 8 },
             { Difficulty.Normal, 16 },
             { Difficulty.Hard, 32 },
@@ -132,28 +143,13 @@ namespace Lesson1.GameLogic
         }
 
         /// <summary>
-        /// Starts the Mine Sweeper game.
-        /// </summary>
-        internal override void StartGame()
-        {
-            base.StartGame();
-        }
-
-        /// <summary>
-        /// Ends the mine Sweeper game.
-        /// </summary>
-        internal override void EndGame()
-        {
-            base.EndGame();
-        }
-
-        /// <summary>
         /// 
         /// </summary>
         internal override void WriteInstructions()
         {
             TextManager.WriteLine("Objective: Your goal is to reveal every area in the mine field without triggering a mine");
             TextManager.WriteLine("How to play: Enter a coordinate to review an area.");
+            //TextManager.WriteLine($"Pick a letter from A -> {ToUpper(CharToRowIndex.Keys.ElementAt(TotalColumns)}, followed by a number between 1 -> {TotalColumns}");
             TextManager.WriteLine("Examples: B2, F12", ConsoleColor.Gray);
             TextManager.WriteLine();
             TextManager.WriteLineBreak();
@@ -175,32 +171,121 @@ namespace Lesson1.GameLogic
             // Validate Coordinate
             if (coordinate == null)
             {
+                if (MineFieldInitialized)
+                {
+                    DrawMineField(false);
+                    TextManager.WriteLine();
+                    TextManager.WriteLine();
+                }
+
                 TextManager.WriteLine("Invalid input.", ConsoleColor.Red);
                 return true;
             }
-            else
-                TextManager.WriteLine("Coordinate: " + coordinate.Column + ", " + coordinate.Row);
 
             // Generate MineField if it hasn't been generated yet
             if (!MineFieldInitialized)
                 GenerateMineFieldArea(coordinate);
 
+            // If coordinate is already solved, remind user.
+            var area = MineFieldArea[coordinate.Row, coordinate.Column];
+            if (area == MineArea.Revealed || area == MineArea.Safe)
+            {
+                TextManager.WriteLine();
+                TextManager.WriteLine();
+                TextManager.WriteLine("Coordinate is already revealed.", ConsoleColor.Red);
+                return true;
+            }
+
             // Select MineField area and draw the mine field
-            var failed = CheckMineArea(coordinate);
+            var failed = PlayMineArea(coordinate);
+            var totalLeft = CheckTotalUnknownAreasLeft();
             DrawMineField(failed);
+
+            // Write information
             TextManager.WriteLine();
+            TextManager.WriteLine($"Total Area Remaining: {totalLeft}");
+            TextManager.WriteLine();
+
+            if (totalLeft == 0)
+                EndGame();
 
             return !failed;
         }
 
         /// <summary>
-        /// 
+        /// Select an area in a mine field. 
+        /// - It will return true if user has touched a mine.
+        /// - Otherwise it will reveal the area that the user selected
         /// </summary>
         /// <param name="select"></param>
         /// <returns></returns>
-        internal bool CheckMineArea(Coordinate select)
+        internal bool PlayMineArea(Coordinate select)
         {
+            var currentSpot = MineFieldArea[select.Row, select.Column];
+            if (currentSpot == MineArea.Mine)
+                return true;
+
+            // Check area around the current spot. If its safe, it will keep checking more areas around it.
+            for (var i = 0; i < TotalRows; i++)
+            {
+                for (var j = 0; j < TotalColumns; j++)
+                {
+                    MineAreaChecked[i, j] = false;
+                }
+            }
+
+            MineFieldArea[select.Row, select.Column] = MineArea.Safe;
+            CheckForVisiblity(select.Row, select.Column);
+
             return false;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        internal int CheckTotalUnknownAreasLeft()
+        {
+            var total = 0;
+            // If there are still unknown areas in the map, the player has not won yet.
+            foreach (var area in MineFieldArea)
+                if (area == MineArea.Unknown)
+                    total++;
+
+            return total;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="spot"></param>
+        /// <returns></returns>
+        internal void CheckForVisiblity(int row, int column)
+        {
+            if (row < 0 || row >= TotalRows) return;
+            if (column < 0 || column >= TotalColumns) return;
+            if (MineAreaChecked[row, column]) return;
+            MineAreaChecked[row, column] = true;
+
+            if (MineFieldLabels[row, column] == 0)
+                MineFieldArea[row, column] = MineArea.Safe;
+            else
+                MineFieldArea[row, column] = MineArea.Revealed;
+
+            if (MineFieldArea[row, column] == MineArea.Safe)
+            {
+                // up
+                CheckForVisiblity(row - 1, column);
+
+                // down
+                CheckForVisiblity(row + 1, column);
+
+                // left
+                CheckForVisiblity(row, column - 1);
+
+                // right
+                CheckForVisiblity(row, column + 1);
+            }
+
         }
 
         /// <summary>
@@ -247,6 +332,7 @@ namespace Lesson1.GameLogic
 
             // Initialize Minefield array
             MineFieldArea = new MineArea[TotalRows, TotalColumns];
+            MineAreaChecked = new bool[TotalRows, TotalColumns];
             MineFieldInitialized = true;
 
             // Start generating the Mine Field
@@ -275,9 +361,9 @@ namespace Lesson1.GameLogic
         internal void GenerateMineFieldLabels()
         {
             MineFieldLabels = new int[TotalRows, TotalColumns];
-            for (var row = 0; row < TotalRows - 1; row++)
+            for (var row = 0; row < TotalRows; row++)
             {
-                for (var column = 0; column < TotalColumns - 1; column++)
+                for (var column = 0; column < TotalColumns; column++)
                 {
                     MineFieldLabels[row,column] = CountNearbyMines(row, column);
                 }
@@ -333,9 +419,9 @@ namespace Lesson1.GameLogic
             }
 
             // Draw mine field
-            for (var row = 0; row < TotalRows - 1; row++)
+            for (var row = 0; row < TotalRows; row++)
             {
-                for (var column = 0; column < TotalColumns - 1; column++)
+                for (var column = 0; column < TotalColumns; column++)
                 {
                     // Draw appropriate vertical label
                     if (column == 0)
@@ -347,13 +433,16 @@ namespace Lesson1.GameLogic
                     }
 
                     // Draw character on screen. It will depend on wether the mine is active or not.
+                    var color = (column + 1) % 10 == 0 ? ConsoleColor.Gray : ConsoleColor.DarkGray;
                     switch (MineFieldArea[row, column])
                     {
                         case MineArea.Mine:
                             if (showMines)
+                            {
                                 TextManager.WriteCharacter('X', ConsoleColor.Red);
-                            else
-                                TextManager.WriteCharacter('O', ConsoleColor.DarkGray);
+                                break;
+                            }
+                            TextManager.WriteCharacter('O', color);
                             break;
                         case MineArea.Revealed:
                             var label = MineFieldLabels[row, column];
@@ -362,8 +451,8 @@ namespace Lesson1.GameLogic
                         case MineArea.Safe:
                             TextManager.WriteCharacter('_', ConsoleColor.Black);
                             break;
-                        default:
-                            TextManager.WriteCharacter('O', ConsoleColor.DarkGray);
+                        case MineArea.Unknown:
+                            TextManager.WriteCharacter('O', color);
                             break;
 
                     }
@@ -399,9 +488,9 @@ namespace Lesson1.GameLogic
             column--;
 
             // Check if row and column are within range.
-            if (row < 0 || row > TotalRows - 1)
+            if (row < 0 || row >= TotalRows)
                 return null;
-            if (column < 0 && column > TotalColumns)
+            if (column < 0 || column >= TotalColumns)
                 return null;
 
             // Return coordinate

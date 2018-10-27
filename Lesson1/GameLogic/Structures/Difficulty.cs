@@ -8,6 +8,7 @@ namespace Lesson1.GameLogic.Structures
 {
     public enum Difficulty
     {
+        Beginner,
         Easy,
         Normal,
         Hard,

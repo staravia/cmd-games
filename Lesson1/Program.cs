@@ -35,10 +35,11 @@ namespace Lesson1
         /// </summary>
         private static Dictionary<int, Difficulty> IndexToDifficulty { get; } = new Dictionary<int, Difficulty>
         {
-            { 1, Difficulty.Easy },
-            { 2, Difficulty.Normal },
-            { 3, Difficulty.Hard },
-            { 4, Difficulty.Expert }
+            { 1, Difficulty.Beginner },
+            { 2, Difficulty.Easy },
+            { 3, Difficulty.Normal },
+            { 4, Difficulty.Hard },
+            { 5, Difficulty.Expert }
         };
 
         /// <summary>

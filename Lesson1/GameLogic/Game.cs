@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lesson1.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,11 +14,15 @@ namespace Lesson1.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        internal virtual void StartGame()
+        internal void StartGame()
         {
+            bool notFailed;
             ContinueGame = true;
             WriteInstructions();
-            while (Update() || ContinueGame) ;
+            while ((notFailed = Update()) && ContinueGame) ;
+
+            // Display a message when the game ends
+            DisplayOver(!notFailed);
         }
 
         /// <summary>
@@ -28,11 +33,32 @@ namespace Lesson1.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        internal virtual void EndGame() => ContinueGame = false;
+        internal void EndGame() => ContinueGame = false;
 
         /// <summary>
         /// 
         /// </summary>
         internal abstract void WriteInstructions();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="failed"></param>
+        private void DisplayOver(bool failed)
+        {
+            TextManager.WriteLineBreak();
+            TextManager.WriteLine();
+
+            // Display appropriate message when the game ends.
+            if (failed)
+                TextManager.WriteLine("Game Over.", ConsoleColor.Red);
+            else
+                TextManager.WriteLine("You win!", ConsoleColor.Green);
+
+            TextManager.WriteLine("Enter anything to continue.");
+            TextManager.WriteLine();
+            TextManager.ReadLine();
+            TextManager.Clear();
+        }
     }
 }
