@@ -61,6 +61,7 @@ namespace Lesson1.GameLogic
             else
                 TextManager.WriteLine("You win!", ConsoleColor.Green);
 
+            // Read user input
             TextManager.WriteLine("Enter anything to continue.");
             TextManager.WriteLine();
             TextManager.ReadLine();
