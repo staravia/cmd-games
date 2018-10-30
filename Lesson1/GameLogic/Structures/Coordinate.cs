@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lesson1.GameLogic.Structures
+namespace CSAssignments.GameLogic.Structures
 {
     /// <summary>
     ///     Represents a coordinate in the MineSweeper game.

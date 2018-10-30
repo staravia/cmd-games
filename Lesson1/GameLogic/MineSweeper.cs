@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Lesson1.GameLogic.Structures;
-using Lesson1.Helpers;
+using CSAssignments.GameLogic.Structures;
+using CSAssignments.Helpers;
 
-namespace Lesson1.GameLogic
+namespace CSAssignments.GameLogic
 {
     /// <summary>
     /// Mine Sweeper Console Game
@@ -284,7 +284,6 @@ namespace Lesson1.GameLogic
                 // right
                 CheckAreaForVisiblity(row, column + 1);
             }
-
         }
 
         /// <summary>

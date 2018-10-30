@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Lesson1.Helpers
+namespace CSAssignments.Helpers
 {
     /// <summary>
     /// This class will be managing text that gets displayed on the Ccnsole.

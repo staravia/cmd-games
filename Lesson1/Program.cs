@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Lesson1.GameLogic;
-using Lesson1.GameLogic.Structures;
-using Lesson1.Helpers;
+using CSAssignments.GameLogic;
+using CSAssignments.GameLogic.Structures;
+using CSAssignments.Helpers;
 
-namespace Lesson1
+namespace CSAssignments
 {
     /// <summary>
     /// This is the main Class.
