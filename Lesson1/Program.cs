@@ -79,30 +79,15 @@ namespace CSAssignments
         /// </summary>
         private static void Update()
         {
-            // Gameplay variables
-            int gameIndex;
-            string gameName;
-            int difficultyIndex;
-            Difficulty difficulty;
-
             // Write instructions + information to Console.
             TextManager.WriteLine("Select a game: ");
             foreach (var index in IndexToGameMode) TextManager.WriteLine($"{index.Key}. {index.Value}");
             TextManager.WriteLine();
             TextManager.WriteLine("Enter a number to select game: \n", ConsoleColor.Green);
 
-            // Validate and get gamemode from user input
-            while (true)
-            {
-                gameIndex = ParseInputToInt(TextManager.ReadLine());
-                if (IndexToGameMode.ContainsKey(gameIndex))
-                {
-                    IndexToGameMode.TryGetValue(gameIndex, out gameName);
-                    break;
-                }
-
-                TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
-            }
+            // Get gamemode from user input
+            var gameIndex = GetIndexFromUserInput(IndexToGameMode.Count);
+            var gameName = IndexToGameMode[gameIndex];
 
             // Write instrutions + information to Console.
             TextManager.Clear();
@@ -112,16 +97,8 @@ namespace CSAssignments
             TextManager.WriteLine("Enter a number to select difficulty: \n", ConsoleColor.Green);
 
             // Get game difficulty from user input
-            while (true)
-            {
-                difficultyIndex = ParseInputToInt(TextManager.ReadLine());
-                if (IndexToDifficulty.ContainsKey(difficultyIndex) == true)
-                {
-                    IndexToDifficulty.TryGetValue(difficultyIndex, out difficulty);
-                    break;
-                }
-                TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
-            }
+            var difficultyIndex = GetIndexFromUserInput(IndexToDifficulty.Count);
+            var difficulty = IndexToDifficulty[difficultyIndex];
 
             // Write instructions + information to Console.
             TextManager.Clear();
@@ -146,22 +123,24 @@ namespace CSAssignments
         }
 
         /// <summary>
-        /// Parses user input to a positive integer.
-        /// Otherwise just return -1.
+        /// 
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="totalModes"></param>
         /// <returns></returns>
-        private static int ParseInputToInt(string input)
+        private static int GetIndexFromUserInput(int totalModes)
         {
+            // Make sure input is equal or between two values
             int number;
-            Int32.TryParse(input, out number);
+            Int32.TryParse(TextManager.ReadLine(), out number);
 
-            // Validate that the number is greater than 0
-            // Or else just return -1.
-            if (number < 0)
-                return -1;
-            else
-                return number;
+            if (number < 1 || number > totalModes)
+            {
+                TextManager.WriteLine("Invalid Input.", ConsoleColor.Red);
+                return GetIndexFromUserInput(totalModes);
+            }
+
+            // Return input if its between the two values
+            return number;
         }
     }
 }
