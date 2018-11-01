@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using CSAssignments.GameLogic;
 using CSAssignments.GameLogic.Structures;
 using CSAssignments.Helpers;
@@ -107,7 +104,6 @@ namespace CSAssignments
             TextManager.WriteLineBreak();
             TextManager.WriteLine();
 
-
             // Start game depending on what the user had input.
             switch (gameIndex)
             {
@@ -123,7 +119,7 @@ namespace CSAssignments
         }
 
         /// <summary>
-        /// 
+        /// Get Index from user input. Index is a positive value that starts at 1.
         /// </summary>
         /// <param name="totalModes"></param>
         /// <returns></returns>
