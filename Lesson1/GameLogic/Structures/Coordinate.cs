@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CSAssignments.GameLogic.Structures
+﻿namespace CSAssignments.GameLogic.Structures
 {
     /// <summary>
     ///     Represents a coordinate in the MineSweeper game.
