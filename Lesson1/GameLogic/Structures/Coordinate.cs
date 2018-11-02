@@ -1,22 +1,22 @@
 ﻿namespace CSAssignments.GameLogic.Structures
 {
     /// <summary>
-    ///     Represents a coordinate in the MineSweeper game.
+    /// Represents a coordinate in the MineSweeper game.
     /// </summary>
     public class Coordinate
     {
         /// <summary>
-        ///     Row
+        /// Row
         /// </summary>
         public int Row { get; private set; }
 
         /// <summary>
-        ///     Column
+        /// Column
         /// </summary>
         public int Column { get; private set; }
 
         /// <summary>
-        ///     Create a new coordinate
+        /// Create a new coordinate
         /// </summary>
         /// <param name="row"></param>
         /// <param name="column"></param>
