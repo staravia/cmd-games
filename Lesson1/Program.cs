@@ -27,7 +27,8 @@ namespace CSAssignments
         /// </summary>
         private static Dictionary<int, string> IndexToGameMode { get; } = new Dictionary<int, string>
         {
-            { 1, "Mine Sweeper" }
+            { 1, "Mine Sweeper" },
+            { 2, "Puyo Puyo" }
         };
 
         /// <summary>
@@ -111,6 +112,9 @@ namespace CSAssignments
             {
                 case 1:
                     CurrentGame = new MineSweeper(difficulty);
+                    break;
+                case 2:
+                    CurrentGame = new PuyoPuyo(difficulty);
                     break;
                 default:
                     throw new Exception("Invalid game mode has been declared.");

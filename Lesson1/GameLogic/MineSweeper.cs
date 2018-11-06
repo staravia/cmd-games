@@ -131,7 +131,7 @@ namespace CSAssignments.GameLogic
         };
 
         /// <summary>
-        /// Initialize Mine Sweeper Game
+        /// Create and Initialize Mine Sweeper Game
         /// </summary>
         public MineSweeper(Difficulty difficulty)
         {

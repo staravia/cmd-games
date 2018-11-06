@@ -43,10 +43,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="GameLogic\Game.cs" />
+    <Compile Include="GameLogic\PuyoPuyo.cs" />
     <Compile Include="GameLogic\Structures\Coordinate.cs" />
     <Compile Include="GameLogic\MineSweeper.cs" />
     <Compile Include="GameLogic\Structures\Difficulty.cs" />
     <Compile Include="GameLogic\Structures\MineArea.cs" />
+    <Compile Include="GameLogic\Structures\PuyoInput.cs" />
     <Compile Include="Helpers\RandomHelper.cs" />
     <Compile Include="Helpers\TextManager.cs" />
     <Compile Include="Program.cs" />
