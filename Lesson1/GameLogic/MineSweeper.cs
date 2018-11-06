@@ -494,7 +494,7 @@ namespace CSAssignments.GameLogic
                     }
                 }
             }
-            // Move to next line so text doesn't continue from last line
+            // Move to next line so text doesn't continue from the current line
             TextManager.WriteLine();
         }
 

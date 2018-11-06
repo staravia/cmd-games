@@ -76,6 +76,7 @@ namespace CSAssignments
         /// </summary>
         private static void Update()
         {
+            #region Game-Diff-Selection
             // Write instructions + information to Console.
             TextManager.WriteLine("Select a game: ");
             foreach (var index in IndexToGameMode) TextManager.WriteLine($"{index.Key}. {index.Value}");
@@ -103,6 +104,7 @@ namespace CSAssignments
             TextManager.WriteLine($"Difficulty Selected: {difficulty}");
             TextManager.WriteLineBreak();
             TextManager.WriteLine();
+            #endregion
 
             // Start game depending on what the user had input.
             switch (gameIndex)
