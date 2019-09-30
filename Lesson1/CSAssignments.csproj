@@ -50,6 +50,8 @@
     <Compile Include="GameLogic\Structures\MineArea.cs" />
     <Compile Include="GameLogic\Structures\PuyoColor.cs" />
     <Compile Include="GameLogic\Structures\PuyoInput.cs" />
+    <Compile Include="GameLogic\Structures\PuyoOrientation.cs" />
+    <Compile Include="GameLogic\Structures\PuyoPair.cs" />
     <Compile Include="Helpers\RandomHelper.cs" />
     <Compile Include="Helpers\TextManager.cs" />
     <Compile Include="Program.cs" />

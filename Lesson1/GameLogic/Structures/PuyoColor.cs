@@ -14,6 +14,8 @@ namespace CSAssignments.GameLogic.Structures
         Red,
         Yellow,
         Green,
-        Blue
+        Blue,
+        Purple,
+        None
     }
 }

@@ -2,6 +2,7 @@
 using CSAssignments.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,7 +17,27 @@ namespace CSAssignments.GameLogic
         /// 
         /// </summary>
         private const int INPUT_CHECK_DELTA_MS = 75;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private const int PUYO_GROUND_TOLERANCE_MS = 800;
         
+        /// <summary>
+        /// 
+        /// </summary>
+        private const int PUYO_POCKET_SIZE = 2;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private int TotalColors { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private PuyoOrientation CurrentOrientation { get; set; } = PuyoOrientation.Up;
+
         /// <summary>
         /// 
         /// </summary>
@@ -26,11 +47,21 @@ namespace CSAssignments.GameLogic
         /// 
         /// </summary>
         private int TotalColumns { get; } = 6;
-
+        
         /// <summary>
         /// 
         /// </summary>
-        private int PocketSize { get; } = 64;
+        private PuyoColor[,] Playfield { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private PuyoPair CurrentPair { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private Stack<PuyoPair> CurrentPocket { get; set; }
 
         /// <summary>
         /// 
@@ -69,6 +100,15 @@ namespace CSAssignments.GameLogic
             { Difficulty.Expert, 100000 }
         };
 
+        private Dictionary<Difficulty, int> DifficultyToColors { get; } = new Dictionary<Difficulty, int>
+        {
+            { Difficulty.Beginner, 3},
+            { Difficulty.Easy, 3},
+            { Difficulty.Normal, 4},
+            { Difficulty.Hard, 4},
+            { Difficulty.Expert, 5}
+        };
+
         /// <summary>
         /// 
         /// </summary>
@@ -77,7 +117,9 @@ namespace CSAssignments.GameLogic
             { PuyoColor.Red, ConsoleColor.Red },
             { PuyoColor.Yellow, ConsoleColor.Yellow },
             { PuyoColor.Green, ConsoleColor.Green },
-            { PuyoColor.Blue, ConsoleColor.Cyan }
+            { PuyoColor.Blue, ConsoleColor.Cyan },
+            { PuyoColor.Purple, ConsoleColor.Magenta},
+            { PuyoColor.None, ConsoleColor.Black}
         };
 
         /// <summary>
@@ -98,6 +140,43 @@ namespace CSAssignments.GameLogic
         public PuyoPuyo(Difficulty difficulty)
         {
             TargetScore = DifficultyToTargetScore[difficulty];
+            Playfield = new PuyoColor[12,6];
+            TotalColors = DifficultyToColors[difficulty];
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void GeneratePuyoPocket()
+        {
+            var total = (int)Math.Pow(TotalColors * 2,2);
+            var pairs = new List<PuyoPair>();
+            TextManager.WriteLine($"TOTAL COLORS: {total}");
+            CurrentPocket = new Stack<PuyoPair>();
+
+            for (var h = 0; h < PUYO_POCKET_SIZE; h++)
+            {
+                for (var i = 0; i < TotalColors; i++)
+                {
+                    for (var j = 0; j < TotalColors; j++)
+                    {
+                        pairs.Add(new PuyoPair((PuyoColor) i, (PuyoColor) j));
+                    }
+                }
+
+                for (var i = 0; i < pairs.Count; i++)
+                {
+                    var rand = pairs[RandomHelper.RandomInt(0, pairs.Count - 1)];
+                    CurrentPocket.Push(rand);
+                    pairs.Remove(rand);
+                }
+            }
+
+            foreach (var i in CurrentPocket)
+            {
+                TextManager.WriteLine($"Pair: {i.PuyoCenter}, {i.PuyoPartner}");
+            }
+            TextManager.WriteLine("----------------------------------");
         }
 
         /// <summary>
@@ -155,14 +234,36 @@ namespace CSAssignments.GameLogic
                 
                 case PuyoInput.MoveRight:
                     return;
+                
+                case PuyoInput.HardDrop:
+                    return;
+                
+                case PuyoInput.SoftDrop:
+                    return;
+                
+                case PuyoInput.RotateClockwise:
+                    return;
+                
+                case PuyoInput.RotateAntiClockwise:
+                    return;
             }
             
             Console.WriteLine(input);
         }
 
+        private void RotatePuyo(bool clockwise)
+        {
+            var rot = clockwise ? (int)CurrentOrientation + 1 : (int)CurrentOrientation - 1;
+            
+            if (rot > 4) rot = 4;
+            else if (rot < 0) rot = 0;
+
+            CurrentOrientation = (PuyoOrientation) rot;
+        }
+
         private void HandleGameTick()
         {
-            
+            GeneratePuyoPocket();
         }
 
         /// <summary>
@@ -175,14 +276,6 @@ namespace CSAssignments.GameLogic
             TextManager.WriteLine();
             DrawPuyoBoard();
             TextManager.WriteLine();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void GeneratePuyoPocket()
-        {
-
         }
 
         /// <summary>
