@@ -4,17 +4,17 @@ using System;
 namespace CSAssignments.GameLogic
 {
     /// <summary>
-    /// This class is used to make games via inheritance. 
+    /// Base Game Class.
     /// </summary>
     public abstract class Game
     {
         /// <summary>
-        /// Determines if the game should kepe looping.
+        /// Determines if the game should keep looping.
         /// </summary>
         private bool ContinueGame { get; set; }
 
         /// <summary>
-        /// Starts game. Should be called from an inherited class.
+        /// This will start the game
         /// </summary>
         internal void StartGame()
         {

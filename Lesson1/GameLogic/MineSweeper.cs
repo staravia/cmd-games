@@ -12,7 +12,7 @@ namespace CSAssignments.GameLogic
     public class MineSweeper : Game
     {
         /// <summary>
-        /// Radius of which that the mines won't be generated from the initial coordinate
+        /// Mines won't be generated from the initial coordinate inside this radius.
         /// </summary>
         private static int SAFE_RADIUS = 2;
 
@@ -52,7 +52,7 @@ namespace CSAssignments.GameLogic
         private bool MineFieldInitialized { get; set; }
 
         /// <summary>
-        /// Refrenced to convert user input to row.
+        /// Referenced to convert user input to row.
         /// </summary>
         private Dictionary<char, int> CharToRowIndex { get; } = new Dictionary<char, int>
         {
@@ -79,7 +79,7 @@ namespace CSAssignments.GameLogic
         };
 
         /// <summary>
-        /// Refrenced to generate mines with a ratio from a selected difficulty.
+        /// Referenced to generate mines with a ratio from a selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, float> DifficultyToMineDensity { get; } = new Dictionary<Difficulty, float>
         {
@@ -91,7 +91,7 @@ namespace CSAssignments.GameLogic
         };
 
         /// <summary>
-        /// Refrenced to generate appropriate amount of rows from selected difficulty.
+        /// Referenced to generate appropriate amount of rows from selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToRows { get; } = new Dictionary<Difficulty, int>
         {
@@ -103,7 +103,7 @@ namespace CSAssignments.GameLogic
         };
 
         /// <summary>
-        /// Refrenced to generate appropriate amount of columns from selected difficulty.
+        /// Referenced to generate appropriate amount of columns from selected difficulty.
         /// </summary>
         private Dictionary<Difficulty, int> DifficultyToColumns { get; } = new Dictionary<Difficulty, int>
         {
@@ -216,7 +216,7 @@ namespace CSAssignments.GameLogic
         /// </summary>
         /// <param name="select"></param>
         /// <returns></returns>
-        internal bool PlayMineArea(Coordinate select)
+        private bool PlayMineArea(Coordinate select)
         {
             var currentSpot = MineFieldArea[select.Row, select.Column];
             if (currentSpot == MineArea.Mine)
@@ -232,7 +232,7 @@ namespace CSAssignments.GameLogic
             }
 
             MineFieldArea[select.Row, select.Column] = MineArea.Safe;
-            CheckAreaForVisiblity(select.Row, select.Column);
+            CheckAreaForVisibility(select.Row, select.Column);
 
             return false;
         }
@@ -240,7 +240,7 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// Count total unknown areas left in the play area.
         /// </summary>
-        internal int CountTotalUnknownAreas()
+        private int CountTotalUnknownAreas()
         {
             var total = 0;
             // If there are still unknown areas in the map, the player has not won yet.
@@ -256,7 +256,7 @@ namespace CSAssignments.GameLogic
         /// </summary>
         /// <param name="spot"></param>
         /// <returns></returns>
-        private void CheckAreaForVisiblity(int row, int column)
+        private void CheckAreaForVisibility(int row, int column)
         {
             if (row < 0 || row >= TotalRows) return;
             if (column < 0 || column >= TotalColumns) return;
@@ -271,16 +271,16 @@ namespace CSAssignments.GameLogic
             if (MineFieldArea[row, column] == MineArea.Safe)
             {
                 // up
-                CheckAreaForVisiblity(row - 1, column);
+                CheckAreaForVisibility(row - 1, column);
 
                 // down
-                CheckAreaForVisiblity(row + 1, column);
+                CheckAreaForVisibility(row + 1, column);
 
                 // left
-                CheckAreaForVisiblity(row, column - 1);
+                CheckAreaForVisibility(row, column - 1);
 
                 // right
-                CheckAreaForVisiblity(row, column + 1);
+                CheckAreaForVisibility(row, column + 1);
             }
         }
 
@@ -399,7 +399,7 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// Draws an empty Mine Field.
         /// </summary>
-        internal void DrawMineField()
+        private void DrawMineField()
         {
             // Draw labels on first row
             TextManager.WriteCharacter('_', ConsoleColor.Black);
@@ -440,7 +440,7 @@ namespace CSAssignments.GameLogic
         /// Draws the Mine Field (also known as the Play Area.)
         /// </summary>
         /// <param name="showMines"></param>
-        internal void DrawMineField(bool showMines = false)
+        private void DrawMineField(bool showMines = false)
         {
             // Draw labels on first row
             TextManager.WriteCharacter('_', ConsoleColor.Black);
