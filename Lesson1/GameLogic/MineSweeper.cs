@@ -346,7 +346,7 @@ namespace CSAssignments.GameLogic
                 }
             }
 
-            // Generate MineField labels
+            // Generate the MineField Labels after the MineField has been generated.
             GenerateMineFieldLabels();
         }
 
