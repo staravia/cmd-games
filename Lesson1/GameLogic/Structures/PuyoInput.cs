@@ -13,6 +13,7 @@ namespace CSAssignments.GameLogic.Structures
     {
         MoveLeft,
         MoveRight,
+        SoftDrop,
         HardDrop,
         RotateClockwise,
         RotateAntiClockwise

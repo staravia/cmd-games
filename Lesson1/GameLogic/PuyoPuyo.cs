@@ -6,11 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace CSAssignments.GameLogic
 {
     class PuyoPuyo : Game
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        private const int INPUT_CHECK_DELTA_MS = 75;
+        
         /// <summary>
         /// 
         /// </summary>
@@ -34,13 +40,21 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        private Dictionary<Char, PuyoInput> CharacterToInput { get; } = new Dictionary<char, PuyoInput>
+        private int GameTickMS { get; set; } = 800;
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private int CurrentDelta { get; set; }
+
+        private Dictionary<ConsoleKey, PuyoInput> KeyToInput { get; } = new Dictionary<ConsoleKey, PuyoInput>()
         {
-            { 'a', PuyoInput.MoveLeft },
-            { 'd', PuyoInput.MoveRight },
-            { 's', PuyoInput.HardDrop },
-            { 'q', PuyoInput.RotateClockwise },
-            { 'e', PuyoInput.RotateAntiClockwise }
+            {ConsoleKey.LeftArrow, PuyoInput.MoveLeft},
+            {ConsoleKey.RightArrow, PuyoInput.MoveRight},
+            {ConsoleKey.DownArrow, PuyoInput.SoftDrop},
+            {ConsoleKey.UpArrow, PuyoInput.RotateClockwise},
+            {ConsoleKey.A, PuyoInput.RotateClockwise},
+            {ConsoleKey.S, PuyoInput.RotateAntiClockwise}
         };
 
         /// <summary>
@@ -92,9 +106,63 @@ namespace CSAssignments.GameLogic
         /// <returns></returns>
         internal override bool Update()
         {
-            Thread.Sleep(100);
-            TextManager.WriteLine("sleep");
+            // Sleep
+            Thread.Sleep(INPUT_CHECK_DELTA_MS);
+            
+            // Handle Input
+            HandleKeyPress();
+            
+            // Handle Tick Iterations (Check for x iterations per tick)
+            CurrentDelta += INPUT_CHECK_DELTA_MS;
+
+            if (CurrentDelta >= GameTickMS)
+            {
+                CurrentDelta = 0;
+                HandleGameTick();
+            }
             return true;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void HandleKeyPress()
+        {
+            if (Console.KeyAvailable)
+            {
+                var key = Console.ReadKey();
+                
+                foreach (var k in KeyToInput)
+                {
+                    if (k.Key == key.Key)
+                    {
+                        HandleGameInput(k.Value);
+                    }
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        private void HandleGameInput(PuyoInput input)
+        {
+            switch (input)
+            {
+                case PuyoInput.MoveLeft:
+                    return;
+                
+                case PuyoInput.MoveRight:
+                    return;
+            }
+            
+            Console.WriteLine(input);
+        }
+
+        private void HandleGameTick()
+        {
+            
         }
 
         /// <summary>
