@@ -165,7 +165,6 @@ namespace CSAssignments.GameLogic
 
             // Get Coordinate
             var coordinate = ParseInput(TextManager.ReadLine());
-            TextManager.Clear();
 
             // Validate Coordinate
             if (coordinate == null)
@@ -402,6 +401,7 @@ namespace CSAssignments.GameLogic
         private void DrawMineField()
         {
             // Draw labels on first row
+            TextManager.Clear();
             TextManager.WriteCharacter('_', ConsoleColor.Black);
             TextManager.WriteCharacter('_', ConsoleColor.Black);
             for (var i = 0; i < TotalColumns; i++)

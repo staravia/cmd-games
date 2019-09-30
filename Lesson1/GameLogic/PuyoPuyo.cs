@@ -61,6 +61,11 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// 
         /// </summary>
+        private int[,] CurrentPosition { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
         private Stack<PuyoPair> CurrentPocket { get; set; }
 
         /// <summary>
@@ -139,9 +144,19 @@ namespace CSAssignments.GameLogic
         /// <param name="difficulty"></param>
         public PuyoPuyo(Difficulty difficulty)
         {
+            // Initialize Game Variables
             TargetScore = DifficultyToTargetScore[difficulty];
-            Playfield = new PuyoColor[12,6];
+            Playfield = new PuyoColor[TotalRows, TotalColumns];
             TotalColors = DifficultyToColors[difficulty];
+            
+            // Populate Playfield
+            for (var i = 0; i < TotalRows; i ++)
+            for (var j = 0; j < TotalColumns; j++)
+                Playfield[i, j] = PuyoColor.None;
+            
+            // Generate Initial Puyo Pieces
+            GeneratePuyoPocket();
+            SpawnNextPuyo();
         }
 
         /// <summary>
@@ -151,7 +166,6 @@ namespace CSAssignments.GameLogic
         {
             var total = (int)Math.Pow(TotalColors * 2,2);
             var pairs = new List<PuyoPair>();
-            TextManager.WriteLine($"TOTAL COLORS: {total}");
             CurrentPocket = new Stack<PuyoPair>();
 
             for (var h = 0; h < PUYO_POCKET_SIZE; h++)
@@ -171,12 +185,11 @@ namespace CSAssignments.GameLogic
                     pairs.Remove(rand);
                 }
             }
+        }
 
-            foreach (var i in CurrentPocket)
-            {
-                TextManager.WriteLine($"Pair: {i.PuyoCenter}, {i.PuyoPartner}");
-            }
-            TextManager.WriteLine("----------------------------------");
+        private void SpawnNextPuyo()
+        {
+            CurrentPair = CurrentPocket.Pop();
         }
 
         /// <summary>
@@ -218,6 +231,7 @@ namespace CSAssignments.GameLogic
                         HandleGameInput(k.Value);
                     }
                 }
+                DrawPlayfield();
             }
         }
         
@@ -263,7 +277,63 @@ namespace CSAssignments.GameLogic
 
         private void HandleGameTick()
         {
-            GeneratePuyoPocket();
+            if (CurrentPocket.Count == 0)
+            {
+                GeneratePuyoPocket();
+            }
+            
+            DrawPlayfield();
+        }
+
+        private void DrawPlayfield()
+        {
+            TextManager.Clear();
+            
+            for (var i = 0; i < TotalRows; i++)
+            {
+                for (var j=0; j< TotalColumns; j++)
+                {
+                    DrawPuyo(Playfield[i, j]);
+
+                    if (j == TotalColumns - 1)
+                    {
+                        TextManager.Write("_.", ConsoleColor.Black);
+
+                        switch (i)
+                        {
+                            case 0:
+                                TextManager.Write("Next:");
+                                break;
+                            
+                            case 1:
+                                DrawPuyo(CurrentPair.PuyoPartner);
+                                break;
+                            
+                            case 2:
+                                DrawPuyo(CurrentPair.PuyoCenter);
+                                break;
+                        }
+                    }
+                }
+                TextManager.WriteLine();
+            }
+        }
+
+        private void DrawPuyo(PuyoColor color)
+        {
+            switch (color)
+            {
+                case PuyoColor.None:
+                    TextManager.WriteCharacter('_', ConsoleColor.DarkGray);
+                    TextManager.WriteCharacter('.', ConsoleColor.Black);
+                    return;
+                
+                default:
+                    TextManager.WriteCharacter('O', IndexToActiveColor[color]);
+                    TextManager.WriteCharacter('.', ConsoleColor.Black);
+                    return;
+                
+            }
         }
 
         /// <summary>

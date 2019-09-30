@@ -16,7 +16,6 @@ namespace CSAssignments.Helpers
         {
             Console.ForegroundColor = color;
             Console.Write(output);
-            Console.ForegroundColor = ConsoleColor.White;
         }
 
         /// <summary>
@@ -35,11 +34,16 @@ namespace CSAssignments.Helpers
         /// </summary>
         /// <param name="output"></param>
         /// <param name="color"></param>
-        public static void WriteLine(string output, ConsoleColor color)
+        public static void WriteLine(string output, ConsoleColor color = ConsoleColor.White)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(output);
-            Console.ForegroundColor = ConsoleColor.White;
+        }
+
+        public static void Write(string output, ConsoleColor color = ConsoleColor.White)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(output);
         }
 
         /// <summary>
