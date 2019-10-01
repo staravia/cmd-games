@@ -94,8 +94,8 @@ namespace CSAssignments.GameLogic
             { ConsoleKey.RightArrow, PuyoInput.MoveRight },
             { ConsoleKey.DownArrow, PuyoInput.SoftDrop },
             { ConsoleKey.UpArrow, PuyoInput.RotateClockwise },
-            { ConsoleKey.A, PuyoInput.RotateClockwise },
-            { ConsoleKey.S, PuyoInput.RotateAntiClockwise },
+            { ConsoleKey.A, PuyoInput.RotateAntiClockwise },
+            { ConsoleKey.S, PuyoInput.RotateClockwise },
             { ConsoleKey.Spacebar, PuyoInput.HardDrop }
         };
 
@@ -171,7 +171,6 @@ namespace CSAssignments.GameLogic
         /// </summary>
         private void GeneratePuyoPocket()
         {
-            var total = (int)Math.Pow(TotalColors * 2,2);
             var pairs = new List<PuyoPair>();
             CurrentPocket = new Stack<PuyoPair>();
 
@@ -256,15 +255,13 @@ namespace CSAssignments.GameLogic
             {
                 case PuyoInput.MoveLeft:
                     if (partnerpos.Column > 0 && Playfield[Math.Max(0,partnerpos.Row), partnerpos.Column - 1] == PuyoColor.None)
-                        if (CurrentPosition.Column > 0 && Playfield[CurrentPosition.Row, CurrentPosition.Column - 1] ==
-                            PuyoColor.None)
+                        if (CurrentPosition.Column > 0 && Playfield[CurrentPosition.Row, CurrentPosition.Column - 1] == PuyoColor.None)
                             CurrentPosition.Column--;
                     return;
                 
                 case PuyoInput.MoveRight:
                     if (partnerpos.Column < TotalColumns - 1 && Playfield[Math.Max(0,partnerpos.Row), partnerpos.Column + 1] == PuyoColor.None)
-                        if (CurrentPosition.Column < TotalColumns - 1 && Playfield[CurrentPosition.Row,
-                                CurrentPosition.Column + 1] == PuyoColor.None)
+                        if (CurrentPosition.Column < TotalColumns - 1 && Playfield[CurrentPosition.Row, CurrentPosition.Column + 1] == PuyoColor.None)
                             CurrentPosition.Column++;
                     return;
                 
