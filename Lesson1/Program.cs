@@ -70,7 +70,7 @@ namespace CSAssignments
 
             // Write error message
             TextManager.WriteLine("The program has crashed!!!!!", ConsoleColor.Yellow);
-            TextManager.ReadLine();
+            TextManager.WaitAndReadInput();
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace CSAssignments
         {
             // Make sure input is equal or between two values
             int number;
-            Int32.TryParse(TextManager.ReadLine(), out number);
+            Int32.TryParse(TextManager.WaitAndReadInput(), out number);
 
             if (number < 1 || number > totalModes)
             {

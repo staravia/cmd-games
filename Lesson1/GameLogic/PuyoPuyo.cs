@@ -61,12 +61,17 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        private int[,] CurrentPosition { get; set; }
+        private Coordinate CurrentPosition { get; set; }
         
         /// <summary>
         /// 
         /// </summary>
         private Stack<PuyoPair> CurrentPocket { get; set; }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        private int CurrentScore { get; set; }
 
         /// <summary>
         /// 
@@ -85,12 +90,13 @@ namespace CSAssignments.GameLogic
 
         private Dictionary<ConsoleKey, PuyoInput> KeyToInput { get; } = new Dictionary<ConsoleKey, PuyoInput>()
         {
-            {ConsoleKey.LeftArrow, PuyoInput.MoveLeft},
-            {ConsoleKey.RightArrow, PuyoInput.MoveRight},
-            {ConsoleKey.DownArrow, PuyoInput.SoftDrop},
-            {ConsoleKey.UpArrow, PuyoInput.RotateClockwise},
-            {ConsoleKey.A, PuyoInput.RotateClockwise},
-            {ConsoleKey.S, PuyoInput.RotateAntiClockwise}
+            { ConsoleKey.LeftArrow, PuyoInput.MoveLeft },
+            { ConsoleKey.RightArrow, PuyoInput.MoveRight },
+            { ConsoleKey.DownArrow, PuyoInput.SoftDrop },
+            { ConsoleKey.UpArrow, PuyoInput.RotateClockwise },
+            { ConsoleKey.A, PuyoInput.RotateClockwise },
+            { ConsoleKey.S, PuyoInput.RotateAntiClockwise },
+            { ConsoleKey.Spacebar, PuyoInput.HardDrop }
         };
 
         /// <summary>
@@ -148,6 +154,7 @@ namespace CSAssignments.GameLogic
             TargetScore = DifficultyToTargetScore[difficulty];
             Playfield = new PuyoColor[TotalRows, TotalColumns];
             TotalColors = DifficultyToColors[difficulty];
+            CurrentPosition = new Coordinate(0,0);
             
             // Populate Playfield
             for (var i = 0; i < TotalRows; i ++)
@@ -190,6 +197,8 @@ namespace CSAssignments.GameLogic
         private void SpawnNextPuyo()
         {
             CurrentPair = CurrentPocket.Pop();
+            CurrentPosition.Row = 0;
+            CurrentPosition.Column = 3;
         }
 
         /// <summary>
@@ -244,56 +253,117 @@ namespace CSAssignments.GameLogic
             switch (input)
             {
                 case PuyoInput.MoveLeft:
+                    CurrentPosition.Column = CurrentPosition.Column == 0 ? 0 : CurrentPosition.Column - 1;
                     return;
                 
                 case PuyoInput.MoveRight:
+                    CurrentPosition.Column = CurrentPosition.Column >= TotalColumns - 1
+                        ? TotalColumns - 1
+                        : CurrentPosition.Column + 1;
                     return;
                 
                 case PuyoInput.HardDrop:
+                    CurrentPosition.Row = 0;
                     return;
                 
                 case PuyoInput.SoftDrop:
+                    CurrentPosition.Row++;
                     return;
                 
                 case PuyoInput.RotateClockwise:
+                    RotatePuyo(true);
                     return;
                 
                 case PuyoInput.RotateAntiClockwise:
+                    RotatePuyo(false);
                     return;
             }
-            
-            Console.WriteLine(input);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="clockwise"></param>
         private void RotatePuyo(bool clockwise)
         {
             var rot = clockwise ? (int)CurrentOrientation + 1 : (int)CurrentOrientation - 1;
             
-            if (rot > 4) rot = 4;
-            else if (rot < 0) rot = 0;
+            if (rot == 4) rot = 0;
+            else if (rot == -1) rot = 3;
 
             CurrentOrientation = (PuyoOrientation) rot;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void HandleGameTick()
         {
             if (CurrentPocket.Count == 0)
             {
                 GeneratePuyoPocket();
             }
+
+            if (HasTouchedGround())
+            {
+                SpawnNextPuyo();
+            }
+            else
+            {
+                CurrentPosition.Row ++;
+            }
             
             DrawPlayfield();
         }
 
+        private bool HasTouchedGround()
+        {
+            return false;
+        }
+
+        private Coordinate GetCurrentPartnerPosition()
+        {
+            switch (CurrentOrientation)
+            {
+                case PuyoOrientation.Up:
+                    return new Coordinate(CurrentPosition.Row - 1, CurrentPosition.Column);
+                
+                case PuyoOrientation.Right:
+                    return new Coordinate(CurrentPosition.Row, CurrentPosition.Column + 1);
+                
+                case PuyoOrientation.Down:
+                    return new Coordinate(CurrentPosition.Row + 1, CurrentPosition.Column);
+                
+                case PuyoOrientation.Left:
+                    return new Coordinate(CurrentPosition.Row, CurrentPosition.Column - 1);
+                
+                default:
+                    throw new Exception();
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void DrawPlayfield()
         {
             TextManager.Clear();
+            var partnerpos = GetCurrentPartnerPosition();
+            
             
             for (var i = 0; i < TotalRows; i++)
             {
                 for (var j=0; j< TotalColumns; j++)
                 {
-                    DrawPuyo(Playfield[i, j]);
+                    if (CurrentPosition.Row == i && CurrentPosition.Column == j)
+                    {
+                        DrawPuyo(CurrentPair.PuyoCenter, true);  
+                    }                    
+                    else if (partnerpos.Row == i && partnerpos.Column == j)
+                        DrawPuyo(CurrentPair.PuyoPartner);
+                            
+                    else
+                        DrawPuyo(Playfield[i, j]);
 
                     if (j == TotalColumns - 1)
                     {
@@ -302,14 +372,23 @@ namespace CSAssignments.GameLogic
                         switch (i)
                         {
                             case 0:
-                                TextManager.Write("Next:");
+                                TextManager.Write("Score:");
                                 break;
                             
                             case 1:
+                                TextManager.Write(CurrentScore.ToString(), ConsoleColor.Red);
+                                break;
+                            
+                            
+                            case 3:
+                                TextManager.Write("Next:");
+                                break;
+                            
+                            case 4:
                                 DrawPuyo(CurrentPair.PuyoPartner);
                                 break;
                             
-                            case 2:
+                            case 5:
                                 DrawPuyo(CurrentPair.PuyoCenter);
                                 break;
                         }
@@ -319,7 +398,11 @@ namespace CSAssignments.GameLogic
             }
         }
 
-        private void DrawPuyo(PuyoColor color)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="color"></param>
+        private void DrawPuyo(PuyoColor color, bool current = false)
         {
             switch (color)
             {
@@ -329,7 +412,7 @@ namespace CSAssignments.GameLogic
                     return;
                 
                 default:
-                    TextManager.WriteCharacter('O', IndexToActiveColor[color]);
+                    TextManager.WriteCharacter(current ? 'X' : 'O', IndexToActiveColor[color]);
                     TextManager.WriteCharacter('.', ConsoleColor.Black);
                     return;
                 
@@ -343,17 +426,7 @@ namespace CSAssignments.GameLogic
         {
             TextManager.WriteLine("Objective: Your goal is to connect 4 circles and reach 10,000 points to win!");
             TextManager.WriteLine("How to play: (TODO) add info here later");
-            TextManager.WriteLine();
-            DrawPuyoBoard();
-            TextManager.WriteLine();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private void DrawPuyoBoard()
-        {
-            
+            WaitForInput();
         }
     }
 }

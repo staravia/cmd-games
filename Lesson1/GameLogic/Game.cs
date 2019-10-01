@@ -42,6 +42,14 @@ namespace CSAssignments.GameLogic
         /// </summary>
         internal abstract void WriteInstructions();
 
+        internal void WaitForInput()
+        {
+            TextManager.WriteLineBreak();
+            TextManager.WriteLine();
+            TextManager.WriteLine("Press a key to continue...", ConsoleColor.Yellow);
+            Console.ReadKey();
+        }
+
         /// <summary>
         /// Will display a message once the game is over.
         /// </summary>
@@ -58,9 +66,7 @@ namespace CSAssignments.GameLogic
                 TextManager.WriteLine("You win!", ConsoleColor.Green);
 
             // Read user input
-            TextManager.WriteLine("Enter anything to continue.");
-            TextManager.WriteLine();
-            TextManager.ReadLine();
+            WaitForInput();
             TextManager.Clear();
         }
     }

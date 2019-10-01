@@ -149,9 +149,9 @@ namespace CSAssignments.GameLogic
             TextManager.WriteLine("How to play: Enter a coordinate to review an area.");
             TextManager.WriteLine($"Pick a letter from A -> {Char.ToUpper(CharToRowIndex.Keys.ElementAt(TotalRows - 1))}, followed by a number between 1 -> {TotalColumns}", ConsoleColor.Yellow);
             TextManager.WriteLine("Examples: B2, F12", ConsoleColor.Gray);
-            TextManager.WriteLine();
+            WaitForInput();
+            TextManager.Clear();
             DrawMineField();
-            TextManager.WriteLine();
         }
 
         /// <summary>
@@ -164,7 +164,8 @@ namespace CSAssignments.GameLogic
             TextManager.WriteLine("Enter a Coordinate: \n", ConsoleColor.Green);
 
             // Get Coordinate
-            var coordinate = ParseInput(TextManager.ReadLine());
+            var coordinate = ParseInput(TextManager.WaitAndReadInput());
+            TextManager.Clear();
 
             // Validate Coordinate
             if (coordinate == null)
@@ -401,7 +402,6 @@ namespace CSAssignments.GameLogic
         private void DrawMineField()
         {
             // Draw labels on first row
-            TextManager.Clear();
             TextManager.WriteCharacter('_', ConsoleColor.Black);
             TextManager.WriteCharacter('_', ConsoleColor.Black);
             for (var i = 0; i < TotalColumns; i++)

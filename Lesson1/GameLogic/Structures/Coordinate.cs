@@ -8,12 +8,12 @@
         /// <summary>
         /// Row
         /// </summary>
-        public int Row { get; private set; }
+        public int Row { get; set; }
 
         /// <summary>
         /// Column
         /// </summary>
-        public int Column { get; private set; }
+        public int Column { get; set; }
 
         /// <summary>
         /// Create a new coordinate

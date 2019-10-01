@@ -60,7 +60,7 @@ namespace CSAssignments.Helpers
         /// </summary>
         /// <param name="color"></param>
         /// <returns></returns>
-        public static string ReadLine(ConsoleColor color = ConsoleColor.Yellow)
+        public static string WaitAndReadInput(ConsoleColor color = ConsoleColor.Yellow)
         {
             Console.ForegroundColor = color;
             var input = Console.ReadLine();
