@@ -250,16 +250,22 @@ namespace CSAssignments.GameLogic
         /// <param name="key"></param>
         private void HandleGameInput(PuyoInput input)
         {
+            var partnerpos = GetCurrentPartnerPosition();
+            
             switch (input)
             {
                 case PuyoInput.MoveLeft:
-                    CurrentPosition.Column = CurrentPosition.Column == 0 ? 0 : CurrentPosition.Column - 1;
+                    if (partnerpos.Column > 0 && Playfield[Math.Max(0,partnerpos.Row), partnerpos.Column - 1] == PuyoColor.None)
+                        if (CurrentPosition.Column > 0 && Playfield[CurrentPosition.Row, CurrentPosition.Column - 1] ==
+                            PuyoColor.None)
+                            CurrentPosition.Column--;
                     return;
                 
                 case PuyoInput.MoveRight:
-                    CurrentPosition.Column = CurrentPosition.Column >= TotalColumns - 1
-                        ? TotalColumns - 1
-                        : CurrentPosition.Column + 1;
+                    if (partnerpos.Column < TotalColumns - 1 && Playfield[Math.Max(0,partnerpos.Row), partnerpos.Column + 1] == PuyoColor.None)
+                        if (CurrentPosition.Column < TotalColumns - 1 && Playfield[CurrentPosition.Row,
+                                CurrentPosition.Column + 1] == PuyoColor.None)
+                            CurrentPosition.Column++;
                     return;
                 
                 case PuyoInput.HardDrop:
@@ -267,7 +273,8 @@ namespace CSAssignments.GameLogic
                     return;
                 
                 case PuyoInput.SoftDrop:
-                    CurrentPosition.Row++;
+                    if (!IsTouchingGround())
+                        CurrentPosition.Row++;
                     return;
                 
                 case PuyoInput.RotateClockwise:
@@ -292,6 +299,13 @@ namespace CSAssignments.GameLogic
             else if (rot == -1) rot = 3;
 
             CurrentOrientation = (PuyoOrientation) rot;
+            
+            var partnerpos = GetCurrentPartnerPosition();
+            if (partnerpos.Column > TotalColumns - 1)
+                CurrentPosition.Column = TotalColumns - 2;
+
+            if (partnerpos.Column < 0)
+                CurrentPosition.Column = 1;
         }
 
         /// <summary>
@@ -304,8 +318,11 @@ namespace CSAssignments.GameLogic
                 GeneratePuyoPocket();
             }
 
-            if (HasTouchedGround())
+            if (IsTouchingGround())
             {
+                var partnerpos = GetCurrentPartnerPosition();
+                Playfield[CurrentPosition.Row, CurrentPosition.Column] = CurrentPair.PuyoCenter;
+                Playfield[partnerpos.Row, partnerpos.Column] = CurrentPair.PuyoPartner;
                 SpawnNextPuyo();
             }
             else
@@ -316,8 +333,19 @@ namespace CSAssignments.GameLogic
             DrawPlayfield();
         }
 
-        private bool HasTouchedGround()
+        private bool IsTouchingGround()
         {
+            var partnerpos = GetCurrentPartnerPosition();
+
+            if (CurrentPosition.Row + 1 >= TotalRows || partnerpos.Row + 1 >= TotalRows)
+                return true;
+
+            if (Playfield[CurrentPosition.Row + 1, CurrentPosition.Column] != PuyoColor.None)
+                return true;
+
+            if (Playfield[partnerpos.Row + 1, partnerpos.Column] != PuyoColor.None)
+                return true;
+
             return false;
         }
 
@@ -360,7 +388,7 @@ namespace CSAssignments.GameLogic
                         DrawPuyo(CurrentPair.PuyoCenter, true);  
                     }                    
                     else if (partnerpos.Row == i && partnerpos.Column == j)
-                        DrawPuyo(CurrentPair.PuyoPartner);
+                        DrawPuyo(CurrentPair.PuyoPartner, true);
                             
                     else
                         DrawPuyo(Playfield[i, j]);
