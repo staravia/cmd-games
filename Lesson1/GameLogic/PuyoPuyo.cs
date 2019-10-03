@@ -57,6 +57,11 @@ namespace CSAssignments.GameLogic
         /// 
         /// </summary>
         private PuyoPair CurrentPair { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private PuyoPair NextPair { get; set; }
         
         /// <summary>
         /// 
@@ -195,7 +200,8 @@ namespace CSAssignments.GameLogic
 
         private void SpawnNextPuyo()
         {
-            CurrentPair = CurrentPocket.Pop();
+            NextPair = CurrentPocket.Pop();
+            CurrentPair = NextPair;
             CurrentPosition.Row = 0;
             CurrentPosition.Column = 3;
         }
@@ -330,6 +336,10 @@ namespace CSAssignments.GameLogic
             DrawPlayfield();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private bool IsTouchingGround()
         {
             var partnerpos = GetCurrentPartnerPosition();
@@ -346,6 +356,10 @@ namespace CSAssignments.GameLogic
             return false;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         private Coordinate GetCurrentPartnerPosition()
         {
             switch (CurrentOrientation)
@@ -410,7 +424,7 @@ namespace CSAssignments.GameLogic
                                 break;
                             
                             case 4:
-                                DrawPuyo(CurrentPair.PuyoPartner);
+                                DrawPuyo(CurrentPair.PuyoCenter);
                                 break;
                             
                             case 5:
