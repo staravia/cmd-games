@@ -61,17 +61,12 @@ namespace CSAssignments.GameLogic
         /// <summary>
         /// 
         /// </summary>
-        private PuyoPair NextPair { get; set; }
+        private List<PuyoPair> NextPairs { get; set; }
         
         /// <summary>
         /// 
         /// </summary>
         private Coordinate CurrentPosition { get; set; }
-        
-        /// <summary>
-        /// 
-        /// </summary>
-        private Stack<PuyoPair> CurrentPocket { get; set; }
         
         /// <summary>
         /// 
@@ -160,6 +155,7 @@ namespace CSAssignments.GameLogic
             Playfield = new PuyoColor[TotalRows, TotalColumns];
             TotalColors = DifficultyToColors[difficulty];
             CurrentPosition = new Coordinate(0,0);
+            NextPairs = new List<PuyoPair>();
             
             // Populate Playfield
             for (var i = 0; i < TotalRows; i ++)
@@ -177,7 +173,6 @@ namespace CSAssignments.GameLogic
         private void GeneratePuyoPocket()
         {
             var pairs = new List<PuyoPair>();
-            CurrentPocket = new Stack<PuyoPair>();
 
             for (var h = 0; h < PUYO_POCKET_SIZE; h++)
             {
@@ -192,16 +187,19 @@ namespace CSAssignments.GameLogic
                 for (var i = 0; i < pairs.Count; i++)
                 {
                     var rand = pairs[RandomHelper.RandomInt(0, pairs.Count - 1)];
-                    CurrentPocket.Push(rand);
+                    NextPairs.Add(rand);
                     pairs.Remove(rand);
                 }
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void SpawnNextPuyo()
         {
-            NextPair = CurrentPocket.Pop();
-            CurrentPair = NextPair;
+            CurrentPair = NextPairs[0];
+            NextPairs.RemoveAt(0);
             CurrentPosition.Row = 0;
             CurrentPosition.Column = 3;
         }
@@ -316,7 +314,7 @@ namespace CSAssignments.GameLogic
         /// </summary>
         private void HandleGameTick()
         {
-            if (CurrentPocket.Count == 0)
+            if (NextPairs.Count <= 3)
             {
                 GeneratePuyoPocket();
             }
@@ -418,17 +416,23 @@ namespace CSAssignments.GameLogic
                                 TextManager.Write(CurrentScore.ToString(), ConsoleColor.Red);
                                 break;
                             
-                            
                             case 3:
                                 TextManager.Write("Next:");
                                 break;
                             
                             case 4:
-                                DrawPuyo(CurrentPair.PuyoCenter);
+                                DrawPuyo(NextPairs[0].PuyoCenter);
                                 break;
                             
                             case 5:
-                                DrawPuyo(CurrentPair.PuyoCenter);
+                                DrawPuyo(NextPairs[0].PuyoPartner);
+                                break;
+
+                            case 7:
+                                DrawPuyo(NextPairs[1].PuyoPartner);
+                                break;
+                            case 8:
+                                DrawPuyo(NextPairs[1].PuyoPartner);
                                 break;
                         }
                     }

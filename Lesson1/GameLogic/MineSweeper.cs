@@ -440,7 +440,7 @@ namespace CSAssignments.GameLogic
         /// Draws the Mine Field (also known as the Play Area.)
         /// </summary>
         /// <param name="showMines"></param>
-        private void DrawMineField(bool showMines = false)
+        private void DrawMineField(bool showMines)
         {
             // Draw labels on first row
             TextManager.WriteCharacter('_', ConsoleColor.Black);
